@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>My Money</title>
+
+<!-- This is what makes it open full screen, with your icon, instead of in Safari -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="My Money">
+<meta name="application-name" content="My Money">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F2F2F7">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
+
+<style>
+  html,body{margin:0;padding:0;height:100%;background:#F2F2F7;overscroll-behavior:none}
+  @media (prefers-color-scheme:dark){html,body{background:#000}}
+  #app{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}
+  #boot{position:fixed;inset:0;display:grid;place-items:center;font:600 15px/1.4 -apple-system,system-ui,sans-serif;
+        color:#8E8E93;background:inherit;transition:opacity .4s}
+  #boot.gone{opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+
+<div id="boot">Opening…</div>
+
+<!-- PASTE YOUR /exec LINK BETWEEN THE QUOTES BELOW -->
+<iframe id="app" title="Money" src="PASTE_YOUR_EXEC_URL_HERE"></iframe>
+
+<script>
+(function(){
+  var KEY = "mum-code";
+  var frame = document.getElementById("app");
+  var boot  = document.getElementById("boot");
+
+  function stored(){ try{ return localStorage.getItem(KEY) || ""; }catch(e){ return ""; } }
+
+  /* The app lives on Google's domain, so Safari keeps its storage separate from
+     this page's. This page remembers the code and passes it in, so neither of
+     you has to type it every time the app opens. */
+  window.addEventListener("message", function(ev){
+    var m = ev && ev.data;
+    if (!m || !m.jj) return;
+    if (m.jj === "ready") {
+      var c = stored();
+      if (c && ev.source) { try{ ev.source.postMessage({jj:"code", code:c}, "*"); }catch(e){} }
+    }
+    if (m.jj === "setcode" && typeof m.code === "string") {
+      try{ localStorage.setItem(KEY, m.code); }catch(e){}
+    }
+  });
+
+  frame.addEventListener("load", function(){ boot.classList.add("gone"); });
+  setTimeout(function(){ boot.classList.add("gone"); }, 6000);
+})();
+</script>
+</body>
+</html>
